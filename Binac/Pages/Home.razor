@@ -1,0 +1,17 @@
+﻿@page "/"
+
+<PageTitle>BINAC</PageTitle>
+
+<h1>Hello, BINAC!</h1>
+
+<div class="mb-3">
+    <label for="code" class="form-label">Enter your code in octal!</label>
+    <InputTextArea @bind-Value="Code" id="code" class="form-control" aria-describedby="codeHelp" />
+    <div id="codeHelp" class="form-text">Enter BINAC code using octal mnemonics.</div>
+</div>
+
+@code {
+    public string Code { get; set; } = "";
+
+    public int[] Memory { get; set; } = new int[512];
+}
