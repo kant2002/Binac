@@ -11,7 +11,20 @@
 </div>
 
 @code {
-    public string Code { get; set; } = "";
+    public string Code 
+    {
+        get => field;
+        set
+        {
+            field = value;
+        }
+    } = "";
 
     public int[] Memory { get; set; } = new int[512];
+
+    public BinacOperation[] ParseCode(string code)
+    {
+        List<BinacOperation> result = new();
+        return result.ToArray();
+    }
 }
