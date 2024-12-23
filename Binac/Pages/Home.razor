@@ -10,6 +10,12 @@
     <div id="codeHelp" class="form-text">Enter BINAC code using octal mnemonics.</div>
 </div>
 
+<button type="button" class="btn btn-primary" @onclick=ExecuteCode>Execute</button>
+
+<p>
+    Even if never described anywhere, it seems that each word represent binary floating number with 30 bits for mantissa and 1 bit was reserved for sign.
+    There no exponent. This can be represented as 10 octal numbers and sign. For example <code>-7,000,000,000</code> represents <em>-0.5</em>
+</p>
 @code {
     public string Code 
     {
@@ -20,11 +26,12 @@
         }
     } = "";
 
-    public int[] Memory { get; set; } = new int[512];
+    private BinacMachine Machine { get; set; } = new();
 
-    public BinacOperation[] ParseCode(string code)
+    void ExecuteCode()
     {
-        List<BinacOperation> result = new();
-        return result.ToArray();
+        var compiler = new BinacCompiler();
+        var ops = compiler.ParseCode(Code);
+        Machine.Reset();
     }
 }
