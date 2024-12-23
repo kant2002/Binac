@@ -9,6 +9,8 @@ public class BinacMachine
     public int L;
     public int PC;
     private bool stopped;
+    private int fuel;
+    public bool Timeout => fuel <= 0;
     public bool BreakpointSwitch { get; set; }
     public BinacOperation[] Operations { get; set; }
 
@@ -19,6 +21,16 @@ public class BinacMachine
         PC = 0;
         A = 0;
         L = 0;
+    }
+    public void Run()
+    {
+        fuel = 1_000_000;
+        stopped = false;
+        while (!stopped && fuel > 0)
+        {
+            Step();
+            fuel--;
+        }
     }
 
     public void Step()

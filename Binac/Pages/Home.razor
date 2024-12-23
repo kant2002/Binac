@@ -10,6 +10,23 @@
     <div id="codeHelp" class="form-text">Enter BINAC code using octal mnemonics.</div>
 </div>
 
+<div class="mb-3">
+    <div class="form-check">
+        <InputCheckbox @bind-Value="Machine.BreakpointSwitch" id="bp-switch" class="form-check-input" aria-describedby="bpHelp" />
+        <label class="form-check-label" for="bp-switch">
+            Breakpoint switch
+        </label>
+    </div>
+    <div id="bpHelp" class="form-text">Put BINAC into debug mode.</div>
+</div>
+
+@if (Machine.Timeout)
+{
+    <div class="alert alert-danger" role="alert">
+        <strong>Timeout!</strong> The program took too long to execute.
+    </div>
+}
+
 <button type="button" class="btn btn-primary" @onclick=ExecuteCode>Execute</button>
 
 <p>
@@ -33,5 +50,6 @@
         var compiler = new BinacCompiler();
         var ops = compiler.ParseCode(Code);
         Machine.Reset();
+        Machine.Run();
     }
 }
