@@ -48,13 +48,14 @@ public struct BinacNumber
     public static BinacNumber operator *(BinacNumber first, BinacNumber second)
     {
         var sign = HasSign(first) ^ HasSign(second);
-        return Normalize(new(((NormalizeCore(first.value) * NormalizeCore(second.value)) >> 30) + (sign ? 0x40_00_00_00 : 0)));
+        var mul = (long)AbsCore(first.value) * AbsCore(second.value);
+        return Normalize(new((int)((mul >> 30) + (sign ? 0x40_00_00_00 : 0))));
     }
 
     public static BinacNumber operator /(BinacNumber first, BinacNumber second)
     {
         var sign = HasSign(first) ^ HasSign(second);
-        var value = (int)((long)NormalizeCore(first.value) << 30 / NormalizeCore(second.value)) + (sign ? 0x40_00_00_00 : 0);
+        var value = (int)((long)AbsCore(first.value) << 30 / AbsCore(second.value)) + (sign ? 0x40_00_00_00 : 0);
         return Normalize(new(value));
     }
 
