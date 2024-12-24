@@ -5,22 +5,22 @@ namespace Binac;
 
 public class BinacMachine
 {
-    public int A;
-    public int L;
+    public BinacNumber A;
+    public BinacNumber L;
     public int PC;
     private bool stopped;
-    private int fuel;
+    private int fuel = 1_000_000;
     public bool Timeout => fuel <= 0;
     public bool BreakpointSwitch { get; set; }
     public BinacOperation[] Operations { get; set; }
 
-    public int[] Memory { get; set; } = new int[512];
+    public BinacNumber[] Memory { get; set; } = new BinacNumber[512];
 
     public void Reset()
     {
         PC = 0;
-        A = 0;
-        L = 0;
+        A = BinacNumber.Zero;
+        L = BinacNumber.Zero;
     }
     public void Run()
     {
@@ -42,12 +42,12 @@ public class BinacMachine
         PC++;
     }
 
-    public int GetMemory(int address)
+    public BinacNumber GetMemory(int address)
     {
         return Memory[address];
     }
 
-    public void SetMemory(int address, int value)
+    public void SetMemory(int address, BinacNumber value)
     {
         Memory[address] = value;
     }
@@ -60,31 +60,26 @@ public class BinacMachine
         {
             // Arithmetic
             case 5:
-                A += GetMemory(operation.MemoryAddress);
-                A = Normalize(A);
+                A = A + GetMemory(operation.MemoryAddress);
                 break;
             case 13 /*15*/:
-                A -= GetMemory(operation.MemoryAddress);
-                A = Normalize(A);
+                A = A - GetMemory(operation.MemoryAddress);
                 break;
             case 8 /*10*/:
-                A = Multiply(L, GetMemory(operation.MemoryAddress));
-                A = Normalize(A);
+                A = L * GetMemory(operation.MemoryAddress);
                 break;
             case 3 /*03*/:
-                A = Divide(A, GetMemory(operation.MemoryAddress));
-                A = Normalize(A);
-                L = 01234;
+                A = A / GetMemory(operation.MemoryAddress);
+                L = new(01234);
                 break;
             case 2 /*02*/:
-                A += L;
-                A = Normalize(A);
+                A = A + L;
                 break;
 
             // Data Handling
             case 4 /*04*/:
                 SetMemory(operation.MemoryAddress, A);
-                A = 0;
+                A = BinacNumber.Zero;
                 break;
             case 11 /*13*/:
                 SetMemory(operation.MemoryAddress, A);
@@ -94,14 +89,13 @@ public class BinacMachine
                 break;
             case 9 /*11*/:
                 L = A;
-                A = 0;
+                A = BinacNumber.Zero;
                 break;
             case 18 /*22*/:
-                A = Normalize(A << 2);
+                A = A << 1;
                 break;
             case 19 /*23*/:
-                var sign = HasSign(A);
-                A = Normalize(A >> 2) + (sign ? 0x40_00_00_00 : 0);
+                A = A >> 1;
                 break;
 
             // Control
@@ -111,7 +105,7 @@ public class BinacMachine
                 PC = operation.MemoryAddress;
                 break;
             case 12 /*14*/:
-                if (HasSign(A))
+                if (BinacNumber.HasSign(A))
                 {
                     PC = operation.MemoryAddress;
                 }
@@ -127,27 +121,5 @@ public class BinacMachine
                 break;
             // Add more cases as needed
         }
-    }
-
-    private int Multiply(int l, int v)
-    {
-        var sign = HasSign(l) ^ HasSign(v);
-        return (Normalize(l) * Normalize(v) >> 30) + (sign ? 0x40_00_00_00 : 0);
-    }
-
-    private int Divide(int l, int v)
-    {
-        var sign = HasSign(l) ^ HasSign(v);
-        return (int)((long)Normalize(l) << 30 / Normalize(v)) + (sign ? 0x40_00_00_00 : 0);
-    }
-
-    private bool HasSign(int a)
-    {
-        return (a & 0x40_00_00_00) != 0;
-    }
-
-    private int Normalize(int a)
-    {
-        return a & 0x3F_FF_FF_FF;
     }
 }
